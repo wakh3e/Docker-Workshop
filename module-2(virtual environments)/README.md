@@ -113,5 +113,5 @@ This script produces a binary (parquet) file, so let's make sure we don't accide
 *.parquet
 ```
 
-**[↑ Up](README.md)** | **[← Previous](01-introduction.md)** | **[Next →](03-dockerizing-pipeline.md)**
+
 
