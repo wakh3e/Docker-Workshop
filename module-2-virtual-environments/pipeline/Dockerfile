@@ -8,3 +8,5 @@ RUN pip install pandas pyarrow
 WORKDIR /code
 # copy the script to the container. 1st name is source file, 2nd is destination
 COPY pipeline.py .
+
+ENTRYPOINT ["python","pipeline.py"]
