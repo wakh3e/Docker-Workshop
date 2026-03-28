@@ -4,19 +4,7 @@
 import pandas as pd
 from sqlalchemy import create_engine
 from tqdm.auto import tqdm #library to track chunk upload
-
-pg_user = 'root'
-pg_pass = 'root'
-pg_host = 'localhost'
-pg_port = 5433
-pg_db = 'ny_taxi'
-
-year = 2021
-month = 1
-
-prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
-url = f'{prefix}/yellow_tripdata_{year}-{month:02d}.csv.gz'
-url
+import click
 
 dtype = {
     "VendorID": "Int64",
@@ -42,26 +30,9 @@ parse_dates = [
     "tpep_dropoff_datetime"
 ]
 
-get_ipython().system('uv add sqlalchemy')
-
-get_ipython().system('uv add psycopg2-binary')
-
-#df.to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
-
-#print(pd.io.sql.get_schema(df, name='yellow_taxi_data', con=engine))
-
-def run():
-    pg_user = 'root'
-    pg_pass = 'root'
-    pg_host = 'localhost'
-    pg_port = 5433
-    pg_db = 'ny_taxi'
-
-    year = 2021
-    month = 1
-
-    target_table = 'yellow_taxi_data'
-    chunksize = 100000
+def run(pg_user, pg_pass, pg_host, pg_port, pg_db, year, month, target_table, chunksize):
+    prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
+    url = f'{prefix}/yellow_tripdata_{year}-{month:02d}.csv.gz'
 
     db_url = f'postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}'
     engine = create_engine(db_url)
@@ -75,16 +46,29 @@ def run():
     )
 
     first = True
-    get_ipython().system('uv add tqdm')
 
     for df_chunk in tqdm(df_iter):
         if first:
             #trigger only for the first instance, (DDL)
-            df_chunk.head(0).to_sql(name= target_table, con=engine, if_exits='replace')
+            df_chunk.head(0).to_sql(name= target_table, con=engine, if_exists='replace')
             first = False
 
         df_chunk.to_sql(name=target_table, con=engine, if_exists='append')
 
 
+@click.command()
+@click.option('--pg_user', default='root', help='PostgreSQL username')
+@click.option('--pg_pass', default='root', help='PostgreSQL password')
+@click.option('--pg_host', default='localhost', help='PostgreSQL host')
+@click.option('--pg_port', type=int, default=5433, help='PostgreSQL port')
+@click.option('--pg_db', default='ny_taxi', help='PostgreSQL database name')
+@click.option('--year', type=int, default=2021, help='Year of the data')
+@click.option('--month', type=int, default=1, help='Month of the data')
+@click.option('--target_table', default='yellow_taxi_data', help='Target table name')
+@click.option('--chunksize', type=int, default=100000, help='Chunk size for data ingestion')
+def main(pg_user, pg_pass, pg_host, pg_port, pg_db, year, month, target_table, chunksize):
+    run(pg_user, pg_pass, pg_host, pg_port, pg_db, year, month, target_table, chunksize)
+
+
 if __name__ == '__main__':
-    run()
+    main()
