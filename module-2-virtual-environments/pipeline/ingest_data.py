@@ -60,7 +60,7 @@ def run(pg_user, pg_pass, pg_host, pg_port, pg_db, year, month, target_table, ch
 @click.option('--pg_user', default='root', help='PostgreSQL username')
 @click.option('--pg_pass', default='root', help='PostgreSQL password')
 @click.option('--pg_host', default='localhost', help='PostgreSQL host')
-@click.option('--pg_port', type=int, default=5433, help='PostgreSQL port')
+@click.option('--pg_port', type=int, default=5432, help='PostgreSQL port')
 @click.option('--pg_db', default='ny_taxi', help='PostgreSQL database name')
 @click.option('--year', type=int, default=2021, help='Year of the data')
 @click.option('--month', type=int, default=1, help='Month of the data')

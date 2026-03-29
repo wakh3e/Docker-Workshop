@@ -9,7 +9,26 @@ Now let's convert the notebook to a Python script.
 uv run jupyter nbconvert --to=script notebook.ipynb
 mv notebook.py ingest_data.py
 ```
+docker run -it --rm \
+  -e POSTGRES_USER="root" \
+  -e POSTGRES_PASSWORD="root" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v ny_taxi_postgres_data:/var/lib/postgresql \
+  -p 5433:5432 \
+  --network=pg-network \
+  --name pgdatabase \
+  postgres:18
 
+docker run -it --rm \ 
+    --network=pg-network \
+    taxi_ingest:v001 \
+      --pg_user=root \
+      --pg_pass=root \
+      --pg_host=pgdatabase \
+      --pg_port=5433 \ 
+      --pg_db=ny_taxi \  
+      --target_table=yellow_taxi_trips_2021_1 \  
+      --chunksize=100000
 ## The Complete Ingestion Script
 
 See the `pipeline/` directory for the complete script with click integration. Here's the core structure:
